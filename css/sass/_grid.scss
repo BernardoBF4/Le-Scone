@@ -1,0 +1,126 @@
+// Variáveis do grid
+$cols: 12;
+$gutter: 20px;
+$lg: 1200px;
+$md: 760px;
+$sm: 480px;
+
+// Box-sizing
+*,
+*::after,
+*::before {
+  box-sizing: border-box;
+}
+
+// Mixins de media-query
+@mixin device($size) {
+  @if $size == lg {
+    @media only screen and (min-width: $lg) {
+      @content;
+    }
+  } @else if $size == md {
+    @media only screen and (min-width: $md) and (max-width: #{$lg - 1}) {
+      @content;
+    }
+  } @else if $size == sm {
+    @media only screen and (max-width: #{$md - 1}) {
+      @content;
+    }
+  }
+}
+
+// Função do grid
+@function grid($col, $offset: false) {
+  $width: $col / $cols * 100 + "%";
+  $result: calc(#{$width} - #{$gutter});
+  @if $offset == offset {
+    $gutter: $gutter / 2;
+    $result: calc(#{$width} + #{$gutter});
+  }
+  @return $result;
+}
+
+// Gera as classes de grid
+@for $i from 1 through $cols {
+  .grid-#{$i} {
+    width: grid($i);
+  }
+}
+
+// Mixin; estrutura do grid
+@mixin grid-structure {
+  float: left;
+  min-height: 1px;
+  margin-inline: $gutter / 2;
+  @include device(sm) {
+    float: none;
+    margin-inline: 0;
+    width: 100%;
+  }
+}
+
+[class^="grid-"] {
+  @include grid-structure();
+}
+
+// Gera as classes de offset
+@for $i from 1 through $cols {
+  .offset-#{$i} {
+    @extend %offset;
+    width: grid($i, offset);
+  }
+}
+
+@include device(sm) {
+  %offset {
+    margin-left: 0;
+  }
+}
+
+// Clearfix
+@mixin cleafix {
+  &::after,
+  &::before {
+    content: "";
+    clear: both;
+    display: table;
+  }
+}
+
+// Container
+@mixin container {
+  margin: 0 auto;
+  max-width: $lg;
+  position: relative;
+  @include device(md) {
+    max-width: $md;
+  }
+  @include device(sm) {
+    max-width: $sm;
+    padding-inline: 10px;
+  }
+}
+
+.container {
+  @include container();
+  @include cleafix();
+}
+
+@mixin row {
+  margin-inline: -$gutter/2;
+  position: relative;
+  @include device(sm) {
+    margin-inline: 0;
+  }
+  @include cleafix();
+}
+
+.row {
+  @include row();
+}
+
+div {
+  background-color: rgba(0, 0, 0, 0.4);
+  min-height: 50px !important;
+  margin-top: 10px;
+}
